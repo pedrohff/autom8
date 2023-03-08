@@ -1,0 +1,49 @@
+{
+  "inherits": [],
+  "llvm-target": "avr",
+  "cpu": "atmega328p",
+  "goos": "linux",
+  "goarch": "arm",
+  "build-tags": [
+    "avr",
+    "baremetal",
+    "linux",
+    "arm",
+    "atmega328p",
+    "atmega",
+    "avr5",
+    "arduino",
+    "math_big_pure_go"
+  ],
+  "gc": "conservative",
+  "scheduler": "tasks",
+  "serial": "uart",
+  "linker": "ld.lld",
+  "rtlib": "compiler-rt",
+  "libc": "picolibc",
+  "automatic-stack-size": false,
+  "default-stack-size": 256,
+  "cflags": [
+    "-Werror"
+  ],
+  "ldflags": [
+    "--defsym\u003d_bootloader_size\u003d512",
+    "--defsym\u003d_stack_size\u003d512"
+  ],
+  "linkerscript": "src/device/avr/atmega328p.ld",
+  "extra-files": [
+    "targets/avr.S",
+    "src/device/avr/atmega328p.s"
+  ],
+  "emulator": "simavr -m atmega328p -f 16000000 {}",
+  "flash-command": "avrdude -c arduino -p atmega328p -P {port} -U flash:w:{hex}:i",
+  "gdb": [
+    "avr-gdb"
+  ],
+  "serial-port": [
+    "2341:0043",
+    "2341:0001",
+    "2a03:0043",
+    "2341:0243"
+  ]
+}
