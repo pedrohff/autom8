@@ -1,4 +1,4 @@
-module github.com/pedrohff/autom8/golang/pkg/homebridgeclient
+module github.com/pedrohff/autom8/golang/pkg/homebridge
 
 go 1.20
 
