@@ -4,4 +4,6 @@ use (
 	serialtovolume
 	mqtttovolume
 	turnoffcomputer
+	homebridgepooler
+	./pkg/homebridge
 )
