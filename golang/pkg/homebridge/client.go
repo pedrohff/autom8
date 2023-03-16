@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"time"
@@ -15,19 +16,20 @@ type Client struct {
 	client *http.Client
 	token  string
 	opts   *ClientOpts
+	log    *zap.Logger
 }
 
 type ClientOpts struct {
 	Host     string
 	User     string
 	Password string
-	Debug    bool
 }
 
-func NewClient(httpClient *http.Client, opts *ClientOpts) *Client {
+func NewClient(httpClient *http.Client, opts *ClientOpts, logger *zap.Logger) *Client {
 	return &Client{
 		client: httpClient,
 		opts:   opts,
+		log:    logger,
 	}
 }
 
@@ -53,9 +55,8 @@ func (api *Client) GetAccessory(ctx context.Context, accessoryId string) ([]byte
 	if err != nil {
 		return nil, err
 	}
-	if api.opts.Debug {
-		fmt.Println(string(responseBody))
-	}
+
+	api.log.Debug(string(responseBody))
 	switch response.StatusCode {
 	case 200:
 		return responseBody, nil
@@ -66,6 +67,9 @@ func (api *Client) GetAccessory(ctx context.Context, accessoryId string) ([]byte
 }
 
 func (api *Client) tokenIsValid() (bool, error) {
+	if api.token == "" {
+		return false, nil
+	}
 	claims := jwt.MapClaims{}
 	token, _, err := jwt.NewParser().ParseUnverified(api.token, claims)
 	if err != nil {
@@ -109,9 +113,7 @@ func (api *Client) getToken(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if api.opts.Debug {
-		fmt.Println(string(responseBody))
-	}
+	api.log.Debug(string(responseBody))
 	switch response.StatusCode {
 	case 201:
 		r := TokenResponse{}

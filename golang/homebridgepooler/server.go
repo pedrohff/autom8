@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	homebridge "github.com/pedrohff/autom8/golang/pkg/homebridgeclient"
+	"go.uber.org/zap"
 	"net/http"
 	"os"
+	"pkg/homebridge"
+	"pkg/log"
 	"time"
 )
 
@@ -15,6 +16,7 @@ type Server struct {
 	homeBridgeClient  *homebridge.Client
 	temperatureClient *temperatureClient
 	mqttClient        mqtt.Client
+	logger            *zap.Logger
 }
 
 type Envs struct {
@@ -29,8 +31,9 @@ type Envs struct {
 }
 
 func (s *Server) Setup() error {
+	appName := "homebridgepooler"
 	s.env = Envs{
-		Debug:     os.Getenv("DEBUG") != "false",
+		Debug:     os.Getenv("DEBUG") == "true",
 		MQTTHost:  os.Getenv("MQTT_HOST"),
 		MQTTTopic: os.Getenv("MQTT_TOPIC"),
 
@@ -53,14 +56,15 @@ func (s *Server) Setup() error {
 		}(),
 	}
 
+	s.logger = log.NewLogger(appName, s.env.Debug)
+
 	s.httpClient = http.DefaultClient
 
 	s.homeBridgeClient = homebridge.NewClient(s.httpClient, &homebridge.ClientOpts{
 		Host:     s.env.HomeBridgeHost,
 		User:     s.env.HomeBridgeUser,
 		Password: s.env.HomeBridgePassword,
-		Debug:    s.env.Debug,
-	})
+	}, s.logger)
 
 	s.temperatureClient = NewTemperatureClient(s.homeBridgeClient, s.env.TemperatureAccessoryID)
 	s.starMQTTClient()
@@ -77,13 +81,13 @@ func (s *Server) starMQTTClient() {
 	opts.AutoReconnect = true
 
 	opts.OnConnectionLost = func(client mqtt.Client, err error) {
-		fmt.Println("on connection lost ", err)
+		s.logger.Warn("on connection lost", zap.Error(err))
 	}
 	opts.OnReconnecting = func(client mqtt.Client, options *mqtt.ClientOptions) {
-		fmt.Println("on reconnecting")
+		s.logger.Warn("on reconnecting")
 	}
 	opts.OnConnect = func(client mqtt.Client) {
-		fmt.Println("onconnect")
+		s.logger.Info("onconnect")
 	}
 	s.mqttClient = mqtt.NewClient(opts)
 }

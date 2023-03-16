@@ -4,28 +4,22 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="34f3936e-68b2-41ad-a1e6-8d96e9e54f4b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/homebridgepooler/server.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/homebridgepooler/temperatureclient.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/homebridge/client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+    <list default="true" id="34f3936e-68b2-41ad-a1e6-8d96e9e54f4b" name="Changes" comment="feat: docker tool + log&#10;&#10;creates a new docker tool for filling a template containing each submodule necessary to compile the homebridgepooler. log package added to the project">
+      <change afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker/homebridgepoolertemplate.Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker/main.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/log/go.mod" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/log/log.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.work" beforeDir="false" afterPath="$PROJECT_DIR$/go.work" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homebridgepooler/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/homebridgepooler/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/homebridgepooler/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/homebridgepooler/go.mod" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/homebridgepooler/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/homebridgepooler/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/homebridgepooler/homebridgeapi.go" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/homebridgepooler/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/homebridgepooler/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mqtttovolume/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mqtttovolume/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mqtttovolume/.idea/serialtovolume.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/turnoffcomputer/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/turnoffcomputer/go.mod" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/turnoffcomputer/go.sum" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/turnoffcomputer/main.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/turnoffcomputer/middlewares.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/turnoffcomputer/resources/application.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/turnoffcomputer/router.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/turnoffcomputer/viper.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/homebridgepooler/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/homebridgepooler/server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homebridgepooler/temperatureclient.go" beforeDir="false" afterPath="$PROJECT_DIR$/homebridgepooler/temperatureclient.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/homebridge/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/homebridge/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/homebridge/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/homebridge/go.mod" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +37,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="true" />
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -51,30 +48,36 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/pedrofeitosa&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "DefaultGoTemplateProperty": "Go File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "configurable..is.expanded": "false",
+    "configurable.GoLibrariesConfigurable.is.expanded": "true",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "/Users/pedrofeitosa/dev/go/autom8/golang/pkg/log",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "settings.editor.selected.configurable": "preferences.lookFeel"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/pkg/log" />
+      <recent name="$PROJECT_DIR$/docker" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/pkg/homebridgeclient" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Go Build.go build pkg/log">
     <configuration name="go build homebridgepooler" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="golang" />
       <working_directory value="$PROJECT_DIR$/homebridgepooler" />
@@ -84,8 +87,18 @@
       <filePath value="$PROJECT_DIR$/homebridgepooler/main.go" />
       <method v="2" />
     </configuration>
+    <configuration name="go build pkg/log" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="golang" />
+      <working_directory value="$PROJECT_DIR$/pkg/log" />
+      <kind value="PACKAGE" />
+      <package value="pkg/log" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/pkg/log/log.go" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build pkg/log" />
         <item itemvalue="Go Build.go build homebridgepooler" />
       </list>
     </recent_temporary>
@@ -93,6 +106,22 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="fix: mod name" />
+    <MESSAGE value="feat: docker tool + log&#10;&#10;creates a new docker tool for filling a template containing each submodule necessary to compile the homebridgepooler. log package added to the project" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: docker tool + log&#10;&#10;creates a new docker tool for filling a template containing each submodule necessary to compile the homebridgepooler. log package added to the project" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

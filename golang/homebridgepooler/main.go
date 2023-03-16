@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"go.uber.org/zap"
 	"os"
 	"os/signal"
 	"syscall"
@@ -33,8 +34,9 @@ func main() {
 			}
 			_ = temperature
 			message := fmt.Sprintf("{\"temperature\": %.2f}", temperature)
+			server.logger.Info("sending temperature", zap.Float64("temperature", temperature))
 			if token := server.mqttClient.Publish(server.env.MQTTTopic, 2, true, message); token.Wait() && token.Error() != nil {
-				fmt.Println("produce err: ", token.Error().Error())
+				server.logger.Error("produce err: ", zap.Error(token.Error()))
 			}
 			time.Sleep(server.env.PoolInterval)
 		}

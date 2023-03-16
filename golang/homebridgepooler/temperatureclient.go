@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
-	homebridge "github.com/pedrohff/autom8/golang/pkg/homebridgeclient"
+	"pkg/homebridge"
 )
 
 type TemperatureAccessoryResult struct {
