@@ -6,4 +6,5 @@ use (
 	homebridgepooler
 	pkg/homebridge
 	pkg/log
+	gladoscd
 )

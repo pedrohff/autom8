@@ -31,6 +31,7 @@ func main() {
 	_ = modListBuffer
 	goworkFile, err := os.ReadFile("go.work")
 	if err != nil {
+		panic(err)
 		return
 	}
 	goworkFileLines := strings.Split(string(goworkFile), "\n")
