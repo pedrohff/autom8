@@ -1,0 +1,15 @@
+- name: copy dynu file
+  copy:
+    src: other/dynudns/dynu.sh
+    dest: /home/glados/dynudns/
+    force: false
+
+- name: change dynu file perm
+  file: dest=/home/glados/dynudns/dynu.sh mode=a+x
+
+- name: add dynu crontab
+  cron:
+    name: "update external dns"
+    user: glados
+    minute: "*/5"
+    job: "/home/glados/dynudns/dynu.sh"

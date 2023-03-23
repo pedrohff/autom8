@@ -1,0 +1,30 @@
+---
+- name: Install essential packages
+  hosts: all
+  become: yes
+  tasks:
+    - import_tasks: tasks/essential.yml
+
+- name: Install docker
+  hosts: all
+  become: yes
+  tasks:
+    - import_tasks: tasks/installdocker.yml
+
+- name: Install homebridge
+  hosts: all
+  become: yes
+  tasks:
+    - import_tasks: tasks/homebridge.yml
+
+- name: Run docker compose for IoT stack
+  hosts: all
+  become: yes
+  tasks:
+    - import_tasks: tasks/composetasks.yml
+
+- name: Enable cron to sync IP with DynuDNS
+  hosts: all
+  become: yes
+  tasks:
+    - import_tasks: tasks/dynu.yml

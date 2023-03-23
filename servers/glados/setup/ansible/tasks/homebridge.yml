@@ -1,0 +1,23 @@
+- name: check if homebridge is installed
+  command: dpkg-query -l homebridge
+  register: homebridge_check
+
+- name: gpg key and repo
+  shell: |
+    curl -sSfL https://repo.homebridge.io/KEY.gpg | sudo gpg --dearmor | sudo tee /usr/share/keyrings/homebridge.gpg  > /dev/null
+    echo "deb [signed-by=/usr/share/keyrings/homebridge.gpg] https://repo.homebridge.io stable main" | sudo tee /etc/apt/sources.list.d/homebridge.list > /dev/null
+  when: homebridge_check.stdout.find('no packages found') != -1
+
+
+- name: Update packages
+  apt:
+    update_cache: yes
+    upgrade: yes
+  when: homebridge_check.stdout.find('no packages found') != -1
+  
+
+- name: Install homebridge
+  package: 
+    name: homebridge
+    state: latest
+  when: homebridge_check.stdout.find('no packages found') != -1

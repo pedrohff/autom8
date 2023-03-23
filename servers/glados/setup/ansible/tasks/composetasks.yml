@@ -1,0 +1,16 @@
+- name: copy docker setup files to docker volume
+  copy:
+    src: compose/volume/
+    dest: /home/glados/docker-volume/
+    force: false
+
+- name: copy docker compose file for glados stack
+  copy:
+    src: compose/glados-stack.yml
+    dest: /home/glados/dockercompose/glados/docker-compose.yml
+    force: true
+
+- name: init compose stack
+  community.docker.docker_compose:
+    project_src: /home/glados/dockercompose/glados
+    debug: false
