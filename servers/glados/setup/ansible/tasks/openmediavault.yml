@@ -1,0 +1,18 @@
+- name: check if omv script is present
+  stat:
+    path: /home/glados/installomv.sh
+  register: omvscript_check
+  ignore_errors: true
+
+- name: copy omv file
+  copy:
+    src: other/installomv.sh
+    dest: /home/glados/installomv.sh
+    force: false
+  when: not omvscript_check.stat.exists
+
+- name: fetch installer, enable execution, install and reboot
+  shell: |
+    chmod +x /home/glados/installomv.sh
+    sudo bash /home/glados/installomv.sh > /home/glados/installomv.log
+  when: not omvscript_check.stat.exists

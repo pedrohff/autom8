@@ -28,3 +28,9 @@
   become: yes
   tasks:
     - import_tasks: tasks/dynu.yml
+
+- name: Setting up samba
+  hosts: all
+  become: yes
+  tasks:
+    - import_tasks: tasks/samba.yml

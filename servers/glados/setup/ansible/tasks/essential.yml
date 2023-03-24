@@ -1,12 +1,44 @@
+
+- name: setup directories
+  file:
+    path: /home/glados/setuplogs
+    state: directory
+    owner: glados
+    group: glados
+    
+- name: notify ansible is running
+  shell: |
+    echo "-----" >> /home/glados/setuplogs/events.log
+    echo "$(date) ||| STARTING ANSIBLE RUN" >> /home/glados/setuplogs/events.log
+
 - name: Update packages
   apt:
     update_cache: yes
     upgrade: yes
+  register: updtagepkgout
+
+- name: copy update output to log
+  copy:
+    content: "{{ updtagepkgout.stdout }}"
+    dest: "/home/glados/setuplogs/updtagepkgout.log"
+
+- name: log
+  shell: echo "$(date) ||| installing essential packages" >> /home/glados/setuplogs/events.log
 
 - name: Install essential packages
   package: 
     name: "{{ packages }}"
     state: latest
+  register: instpkgout
+
+- name: log
+  shell: echo "$(date) ||| done installing essential packages" >> /home/glados/setuplogs/events.log
+
+- name: copy install output to log
+  copy:
+    content: "{{ instpkgout.stdout }}"
+    dest: "/home/glados/setuplogs/instpkgout.log"
+  ignore_errors: true
 
 - name: Disable SSH password auth
   lineinfile:

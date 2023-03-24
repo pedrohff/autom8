@@ -1,43 +1,78 @@
-- name: check if docker is already installed
+- name: check if docker is already installed 
   command: dpkg-query -l docker
   register: docker_check
+  ignore_errors: True
+  changed_when:
+    - docker_check.rc == 1
+
+- name: log
+  when: docker_check.stderr.find('no packages found') != -1
+  shell: echo "$(date) ||| install docker packages" >> /home/glados/setuplogs/events.log
 
 - name: Install a list of packages
-  when: docker_check.stdout.find('no packages found') != -1
+  when: docker_check.stderr.find('no packages found') != -1
   apt:
     name:
     - libffi-dev
     - libssl-dev
     - python3
     - python3-pip
+    # - python3-docker
+    # - docker-compose
     update_cache: yes
 
+- name: log
+  when: docker_check.stderr.find('no packages found') != -1
+  shell: echo "$(date) ||| done installing docker packages" >> /home/glados/setuplogs/events.log
+
 - name: Remove python-configparser package
-  when: docker_check.stdout.find('no packages found') != -1
+  when: docker_check.stderr.find('no packages found') != -1
   apt:
     name: python-configparser
     state: absent
 
 - name: get docker convenience script
-  when: docker_check.stdout.find('no packages found') != -1
+  when: docker_check.stderr.find('no packages found') != -1
   shell: curl -fsSL https://get.docker.com -o get-docker.sh
   args:
     creates: /home/glados/get-docker.sh
 
+
+- name: log
+  when: docker_check.stderr.find('no packages found') != -1
+  shell: echo "$(date) ||| done installing docker" >> /home/glados/setuplogs/events.log
+
 - name: install docker
-  when: docker_check.stdout.find('no packages found') != -1
-  shell: sh /home/glados/get-docker.sh
+  when: docker_check.stderr.find('no packages found') != -1
+  shell: sh /home/glados/get-docker.sh > /home/glados/setuplogs/docker.log
   args:
     creates: /usr/bin/docker
+  ignore_errors: true
+
+- name: log
+  when: docker_check.stderr.find('no packages found') != -1
+  shell: echo "$(date) ||| done installing docker" >> /home/glados/setuplogs/events.log
 
 - name: make pi user execute docker commands
-  when: docker_check.stdout.find('no packages found') != -1
+  when: docker_check.stderr.find('no packages found') != -1
   shell: usermod -aG docker glados
 
 - name: install docker-compose
-  when: docker_check.stdout.find('no packages found') != -1
-  shell: pip3 -v install docker-compose
+  when: docker_check.stderr.find('no packages found') != -1
+  shell: pip3 -v install docker-compose > /home/glados/setuplogs/installcomposer.log
   args:
     creates: /usr/local/bin/docker-compose
 
-    
+- name: log
+  when: docker_check.stderr.find('no packages found') != -1
+  shell: echo "$(date) ||| rebooting machine" >> /home/glados/setuplogs/events.log
+
+- name: reboot machine
+  when: docker_check.stderr.find('no packages found') != -1
+  reboot:
+    reboot_timeout: 120
+
+
+- name: log
+  when: docker_check.stderr.find('no packages found') != -1
+  shell: echo "$(date) ||| machine is up" >> /home/glados/setuplogs/events.log

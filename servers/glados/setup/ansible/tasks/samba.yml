@@ -1,0 +1,22 @@
+- name: setup directories
+  file:
+    path: /home/glados/shared
+    state: directory
+    owner: glados
+    group: glados
+
+- name: copy docker compose file for glados stack
+  copy:
+    src: other/smb.conf
+    dest: /etc/samba/smb.conf
+    force: true
+
+- name: restart smbd
+  shell: systemctl restart smbd
+
+
+# lsblk - lista informacoes de "block devices" (discos) 
+# sudo mount /dev/sda7 /home/glados/shared/ristretto
+# sudo useradd smblocal
+# sudo passwd smblocal
+# sudo smbpasswd -a smblocal

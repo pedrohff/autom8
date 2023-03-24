@@ -1,23 +1,94 @@
 - name: check if homebridge is installed
   command: dpkg-query -l homebridge
   register: homebridge_check
+  ignore_errors: true
+  changed_when:
+    - homebridge_check.rc == 1
+  # failed_when: homebridge_check.rc != 1 and homebridge_check.rc != 0
 
 - name: gpg key and repo
   shell: |
     curl -sSfL https://repo.homebridge.io/KEY.gpg | sudo gpg --dearmor | sudo tee /usr/share/keyrings/homebridge.gpg  > /dev/null
     echo "deb [signed-by=/usr/share/keyrings/homebridge.gpg] https://repo.homebridge.io stable main" | sudo tee /etc/apt/sources.list.d/homebridge.list > /dev/null
-  when: homebridge_check.stdout.find('no packages found') != -1
+  when: homebridge_check.stderr.find('no packages found') != -1
 
 
 - name: Update packages
   apt:
     update_cache: yes
-    upgrade: yes
-  when: homebridge_check.stdout.find('no packages found') != -1
+  when: homebridge_check.stderr.find('no packages found') != -1
   
 
 - name: Install homebridge
   package: 
     name: homebridge
     state: latest
-  when: homebridge_check.stdout.find('no packages found') != -1
+  when: homebridge_check.stderr.find('no packages found') != -1
+
+- name: 'check homebridge lock'
+  stat: 
+    path: /var/lib/homebridge/ansible.lock
+  register: hb_ansible_lock
+
+
+- name: create homebridge lock
+  file: 
+    path: /var/lib/homebridge/ansible.lock
+    state: touch 
+  when: not hb_ansible_lock.stat.exists
+
+
+- name: copy auth file
+  when: not hb_ansible_lock.stat.exists
+  copy:
+    src: other/homebridge/auth.json
+    dest: /var/lib/homebridge/auth.json
+    force: true
+
+- name: copy config file
+  when: not hb_ansible_lock.stat.exists
+  copy:
+    src: other/homebridge/config.json
+    dest: /var/lib/homebridge/config.json
+    force: true
+
+- name: Install "homebridge-broadlink-rm-pro" node.js package.
+  when: not hb_ansible_lock.stat.exists
+  ignore_errors: true
+  community.general.npm:
+    name: homebridge-broadlink-rm-pro
+    global: true
+    path: /var/lib/homebridge
+
+- name: Install "homebridge-ewelink" node.js package.
+  when: not hb_ansible_lock.stat.exists
+  ignore_errors: true
+  community.general.npm:
+    name: homebridge-ewelink
+    global: true
+    path: /var/lib/homebridge
+
+- name: Install "homebridge-mi-temperature-and-humidity-sensor" node.js package.
+  when: not hb_ansible_lock.stat.exists
+  ignore_errors: true
+  community.general.npm:
+    name: homebridge-mi-temperature-and-humidity-sensor
+    global: true
+    path: /var/lib/homebridge
+
+- name: Install "homebridge-wol" node.js package.
+  when: not hb_ansible_lock.stat.exists
+  ignore_errors: true
+  community.general.npm:
+    name: homebridge-wol
+    global: true
+    path: /var/lib/homebridge
+
+
+- name: restarting homebridge
+  when: not hb_ansible_lock.stat.exists
+  shell: systemctl restart homebridge
+    
+    
+    
+    

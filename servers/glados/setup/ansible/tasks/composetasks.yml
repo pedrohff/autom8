@@ -1,16 +1,51 @@
-- name: copy docker setup files to docker volume
+- name: check if docker is running
+  shell: 'systemctl status docker | grep Active:'
+  register: dockerdrunning
+  ignore_errors: true
+
+- name: check if docker-compose is installed
+  shell: which docker-compose
+  register: dockercomposecheck
+  ignore_errors: true
+  changed_when:
+    - dockercomposecheck.rc == 127 or dockercomposecheck.rc == 0
+
+- name: copy docker setup files to docker volume 
+  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
   copy:
     src: compose/volume/
     dest: /home/glados/docker-volume/
     force: false
+    owner: glados
+    group: glados
+
+- name: setup directories
+  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
+  file:
+    path: /home/glados/dockercompose/glados/
+    state: directory
+    owner: glados
+    group: glados
 
 - name: copy docker compose file for glados stack
+  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
   copy:
     src: compose/glados-stack.yml
     dest: /home/glados/dockercompose/glados/docker-compose.yml
     force: true
+    owner: glados
+    group: glados
 
 - name: init compose stack
+  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
+  become: true
+  become_user: glados
   community.docker.docker_compose:
     project_src: /home/glados/dockercompose/glados
-    debug: false
+  register: composeout
+
+# - name: copy compose output to log
+#   when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
+#   copy:
+#     content: "{{ composeout.stdout }}"
+#     dest: "/home/glados/setuplogs/compose.log"

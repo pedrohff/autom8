@@ -5,3 +5,7 @@ packages:
   - neofetch
   - tmux
   - speedtest-cli
+  - tree
+  - samba
+  - samba-common-bin
+  - npm
