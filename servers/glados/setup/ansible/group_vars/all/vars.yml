@@ -9,3 +9,6 @@ packages:
   - samba
   - samba-common-bin
   - npm
+  - ffmpeg
+
+dynuHost: aiusdfyi.ooguy.com

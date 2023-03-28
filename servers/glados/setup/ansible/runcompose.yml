@@ -1,0 +1,6 @@
+---
+- name: Run docker compose for IoT stack
+  hosts: all
+  become: yes
+  tasks:
+    - import_tasks: tasks/composetasks.yml

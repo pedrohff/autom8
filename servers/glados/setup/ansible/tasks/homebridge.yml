@@ -84,6 +84,18 @@
     global: true
     path: /var/lib/homebridge
 
+# webcam:
+- name: adding existing user glados to group video
+  user:
+    name: glados
+    groups: video
+    append: yes
+- name: adding existing user homebridge to group video
+  user:
+    name: homebridge
+    groups: video
+    append: yes
+
 
 - name: restarting homebridge
   when: not hb_ansible_lock.stat.exists

@@ -37,9 +37,16 @@ services:
     image: chronograf:latest
     ports:
       - "8888:8888"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.chronograf.rule=Host(`chronograf.{{dynuHost}}`)"
+      - "traefik.http.routers.chronograf.entrypoints=websecure"
+      - "traefik.http.services.chronograf.loadbalancer.server.port=8888"
+      - "traefik.http.routers.chronograf.service=chronograf"
+      - "traefik.http.routers.chronograf.tls=true"
+      - "traefik.http.routers.chronograf.tls.certresolver=production"
     depends_on:
       - influxdb
-    #networks: [metrics,host]
     environment:
       - INFLUXDB_URL=http://influxdb:8086 # needs to match container_name
       - INFLUXDB_USERNAME={{influxUsername}}
@@ -49,11 +56,23 @@ services:
     container_name: portainer
     restart: always
     image: portainer/portainer-ce:latest
-    ports:
-      - "9000:9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - $HOME/docker-volume/portainer/data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.{{dynuHost}}`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.routers.portainer.service=portainer"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.tls.certresolver=production"
+      # Edge
+      - "traefik.http.routers.edge.rule=Host(`edge.{{dynuHost}}`)"
+      - "traefik.http.routers.edge.entrypoints=web"
+      - "traefik.http.services.edge.loadbalancer.server.port=8000"
+      - "traefik.http.routers.edge.service=edge"
+  
   
   mosquitto:
     container_name: mosquitto
@@ -63,6 +82,62 @@ services:
       - "1883:1883"
     volumes:
       - $HOME/docker-volume/mosquitto:/mosquitto/
+
+
+  # homebridge:
+  #   image: oznu/homebridge:latest
+  #   restart: always
+  #   volumes:
+  #     - $HOME/docker-volume:/homebridge
+
+  traefik:
+    environment:
+      - DYNU_API_KEY={{dynuapikey}}
+    volumes:
+      - $HOME/docker-volume/traefik:/etc/traefik
+      - $HOME/docker-volume/traefik-ssl-certs:/ssl-certs
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    image: traefik:v2.9
+    container_name: traefik
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080":
+
+  authelia:
+    image: authelia/authelia
+    container_name: authelia
+    volumes:
+      - $HOME/docker-volume/authelia:/config
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.authelia.rule=Host(`authelia.{{dynuHost}}`)'
+      - 'traefik.http.routers.authelia.entrypoints=websecure'
+      - 'traefik.http.routers.authelia.tls=true'
+      - 'traefik.http.routers.authelia.tls.certresolver=production'
+      - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/authz/forward-auth?authelia_url=https://authelia.{{dynuHost}}'
+      - 'traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true'
+      - 'traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
+    expose:
+      - 9091
+    restart: unless-stopped
+    healthcheck:
+      ## In production the healthcheck section should be commented.
+      disable: true
+    environment:
+      - TZ=America/Sao_Paulo
+
+    redis:
+      image: redis:alpine
+      container_name: redis
+      volumes:
+        - $HOME/docker-volume/redis:/data
+      expose:
+        - 6379
+      restart: unless-stopped
+      environment:
+        - TZ=America/Sao_Paulo
+
     
  
 #https://raw.githubusercontent.com/EddieDSuza/techwitheddie/main/UltimateHomekitHub
