@@ -1,0 +1,28 @@
+http:
+  routers:
+    homebridge:
+      entryPoints:
+        - web
+        - websecure
+      rule: 'Host(`homebridge.{{dynuHost}}`)'
+      service: homebridge
+      middlewares:
+        - auth
+      tls:
+        certresolver: production
+  services:
+    homebridge:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.15.18:8581/"
+  
+  middlewares:
+    auth:
+      forwardauth:
+        address: http://authelia:9091/api/verify?rd=https://auth.{{dynuHost}}
+        trustForwardHeader: true
+        authResponseHeaders:
+          - Remote-User
+          - Remote-Groups
+          - Remote-Name
+          - Remote-Email

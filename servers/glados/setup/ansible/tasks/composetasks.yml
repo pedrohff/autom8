@@ -45,16 +45,76 @@
     force: true
     owner: glados
     group: glados
-# - name: copy docker compose file for glados stack
-#   tags:
-#     - compose
-#   when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
-#   copy:
-#     src: compose/glados-stack.yml
-#     dest: /home/glados/dockercompose/glados/docker-compose.yml
-#     force: true
-#     owner: glados
-#     group: glados
+
+- name: setup authelia directory
+  tags:
+    - compose
+    - authelia
+  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
+  file:
+    path: /home/glados/docker-volume/authelia
+    state: directory
+    owner: glados
+    group: glados
+
+- name: copy authelia core config file
+  tags:
+    - compose
+    - authelia
+  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
+  ansible.builtin.template:
+    src: other/authelia/configuration.yml
+    dest: /home/glados/docker-volume/authelia/configuration.yml
+    force: true
+    owner: glados
+    group: glados
+
+- name: copy authelia users database config file
+  tags:
+    - compose
+    - authelia
+  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
+  ansible.builtin.template:
+    src: other/authelia/users_database.yml
+    dest: /home/glados/docker-volume/authelia/users_database.yml
+    force: true
+    owner: glados
+    group: glados
+
+- name: setup traefik directory
+  tags:
+    - compose
+    - traefik
+  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
+  file:
+    path: /home/glados/docker-volume/traefik
+    state: directory
+    owner: glados
+    group: glados
+
+- name: copy traefik main config file
+  tags:
+    - compose
+    - traefik
+  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
+  ansible.builtin.template:
+    src: other/traefik/traefik.yml
+    dest: /home/glados/docker-volume/traefik/traefik.yml
+    force: true
+    owner: glados
+    group: glados
+
+- name: copy traefik external config file
+  tags:
+    - compose
+    - traefik
+  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
+  ansible.builtin.template:
+    src: other/traefik/external.yml
+    dest: /home/glados/docker-volume/traefik/external.yml
+    force: true
+    owner: glados
+    group: glados
 
 - name: init compose stack
   tags:
@@ -64,10 +124,5 @@
   become_user: glados
   community.docker.docker_compose:
     project_src: /home/glados/dockercompose/glados
+    recreate: "always"
   register: composeout
-
-# - name: copy compose output to log
-#   when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
-#   copy:
-#     content: "{{ composeout.stdout }}"
-#     dest: "/home/glados/setuplogs/compose.log"

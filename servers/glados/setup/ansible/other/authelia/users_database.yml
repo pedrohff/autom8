@@ -1,0 +1,17 @@
+---
+###############################################################
+#                         Users Database                      #
+###############################################################
+
+# This file can be used if you do not have an LDAP set up.
+
+# List of users
+users:
+  glados:
+    disabled: false
+    displayname: "Glados"
+    password: {{authelia.users.glados.password}}
+    email: pedrohenriqueff@gmail.com
+    groups:
+      - admins
+      - dev

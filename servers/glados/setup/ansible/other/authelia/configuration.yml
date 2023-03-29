@@ -1,0 +1,84 @@
+---
+jwt_secret: {{authelia.jwt_secret}}
+default_redirection_url: https://auth.{{dynuHost}}
+
+server:
+  host: 0.0.0.0
+  port: 9091
+
+log:
+  level: debug
+
+totp:
+  issuer: authelia.com
+
+authentication_backend:
+  file:
+    path: /config/users_database.yml
+    password:
+      algorithm: argon2id
+      iterations: 1
+      salt_length: 16
+      parallelism: 8
+      memory: 64
+
+access_control:
+  default_policy: deny
+  rules:
+    # Rules applied to everyone
+    # - domain: public.example.com
+    #   policy: bypass
+    # - domain: traefik.example.com
+    #   policy: one_factor
+    - domain: chronograf.{{dynuHost}}
+      policy: two_factor
+    - domain: portainer.{{dynuHost}}
+      policy: two_factor
+    - domain: homebridge.{{dynuHost}}
+      policy: two_factor
+    - domain: kuma.{{dynuHost}}
+      policy: one_factor
+
+session:
+  name: 'authelia_session'
+  inactivity: '5m'
+  expiration: '1h'
+  remember_me_duration: '1M'
+  domain: {{dynuHost}}
+  same_site: lax
+  # This secret can also be set using the env variables AUTHELIA_SESSION_SECRET_FILE
+  secret: unsecure_session_secret
+
+  # cookies:
+  #   - name: authelia_session
+  #     domain: {{dynuHost}}
+  #     expiration: 3600  # 1 hour
+  #     inactivity: 300  # 5 minutes
+
+  # redis:
+  #   host: redis
+  #   port: 6379
+    # This secret can also be set using the env variables AUTHELIA_SESSION_REDIS_PASSWORD_FILE
+    # password: authelia
+
+regulation:
+  max_retries: 3
+  find_time: 120
+  ban_time: 300
+
+storage:
+  encryption_key: {{authelia.storage.encryptionKey}}
+  local:
+    path: /config/db.sqlite3
+
+notifier:
+  disable_startup_check: true
+  filesystem:
+    filename: /config/notification.txt
+#   smtp:
+#     username: test
+#     # This secret can also be set using the env variables AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE
+#     password: password
+#     host: mail.example.com
+#     port: 25
+#     sender: admin@example.com
