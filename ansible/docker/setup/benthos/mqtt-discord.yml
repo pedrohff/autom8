@@ -1,0 +1,14 @@
+input:
+  label: "idk"
+  mqtt:
+    urls:
+      - 192.168.15.18:1883
+    topics:
+      - /home/bedroom/sensors/temperature
+    client_id: "glados-benthos"
+# pipeline:
+output:
+  label: "dsc"
+  discord:
+    channel_id: {{discord.channels.tests.id}}
+    bot_token: {{discord.bot.token}}
