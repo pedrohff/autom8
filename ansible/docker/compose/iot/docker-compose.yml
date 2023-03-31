@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  # homebridgepooler:
+  #   image: pedrofeitosa/homebridgepooler:0.0.10
+  #   container_name: homebridgepooler
+  #   environment:
+  #     - HOMEBRIDGE_HOST=
+  #     - HOMEBRIDGE_AUTH_USER=
+  #     - HOMEBRIDGE_AUTH_PASSWORD=
+  #     - HOMEBRIDGE_TEMPERATURE_ACESSORY_ID=
+  #     - MQTT_HOST=
+  #     - MQTT_TOPIC=
+  #     - POOL_INTERVAL=30s
+
+  benthos:
+    image: jeffail/benthos
+    volumes:
+    - "./configs/webhook.yaml:/benthos.yaml"
+    ports:
+    - "4195:4195"

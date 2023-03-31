@@ -5,7 +5,7 @@
     owner: glados
     group: glados
 
-- name: copy docker compose file for glados stack
+- name: copy samba conf
   copy:
     src: other/smb.conf
     dest: /etc/samba/smb.conf

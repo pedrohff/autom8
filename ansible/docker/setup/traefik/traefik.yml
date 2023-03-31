@@ -61,5 +61,5 @@ providers:
     exposedByDefault: false  # Default is true
   file:
     # watch for dynamic configuration changes
-    directory: /etc/traefik
+    directory: /traefik/files
     watch: true

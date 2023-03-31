@@ -1,0 +1,3 @@
+CREATE DATABASE {{influxdb.telegraf.database}} WITH DURATION 31d
+CREATE USER {{influxdb.telegraf.user}} WITH PASSWORD '{{influxdb.telegraf.pass}}'
+GRANT WRITE ON {{influxdb.telegraf.database}} to {{influxdb.telegraf.user}}

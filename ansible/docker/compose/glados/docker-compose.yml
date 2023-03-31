@@ -15,9 +15,9 @@ services:
     ports:
       - "8086:8086"
     volumes:
-      - $HOME/docker-volume/influxdb/data:/var/lib/influxdb
-      - $HOME/docker-volume/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf:ro
-      - $HOME/docker-volume/influxdb/init:/docker-entrypoint-initdb.d
+      - $HOME/docker/volume/influxdb:/var/lib/influxdb
+      - $HOME/docker/setup/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf:ro
+      - $HOME/docker/setup/influxdb/init:/docker-entrypoint-initdb.d
     environment:
       - INFLUXDB_ADMIN_USER={{influxUsername}}
       - INFLUXDB_ADMIN_PASSWORD={{influxPassword}}
@@ -27,7 +27,7 @@ services:
     restart: always
     container_name: telegraf
     volumes:
-      - $HOME/docker-volume/influxdb/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - $HOME/docker/setup/influxdb/telegraf.conf:/etc/telegraf/telegraf.conf:ro
 
   # kapacitor:
   #   image: kapacitor
@@ -68,7 +68,7 @@ services:
     image: portainer/portainer-ce:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - $HOME/docker-volume/portainer/data:/data
+      - $HOME/docker/volume/portainer:/data
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.portainer.rule=Host(`portainer.{{dynuHost}}`)"
@@ -86,14 +86,17 @@ services:
     ports:
       - "1883:1883"
     volumes:
-      - $HOME/docker-volume/mosquitto:/mosquitto/
+      - $HOME/docker/volume/mosquitto/data:/mosquitto/data
+      - $HOME/docker/volume/mosquitto/log:/mosquitto/log
+      - $HOME/docker/setup/mosquitto/config:/mosquitto/config
 
   traefik:
     environment:
       - DYNU_API_KEY={{dynuapikey}}
     volumes:
-      - $HOME/docker-volume/traefik:/etc/traefik
-      - $HOME/docker-volume/traefik-ssl-certs:/ssl-certs
+      - $HOME/docker/volume/traefik:/etc/traefik
+      - $HOME/docker/setup/traefik/traefik.yml:/traefik.yml:ro
+      - $HOME/docker/setup/traefik/external.yml:/traefik/files/external.yml:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     image: traefik:v2.9
     container_name: traefik
@@ -105,7 +108,8 @@ services:
     image: authelia/authelia
     container_name: authelia
     volumes:
-      - $HOME/docker-volume/authelia:/config
+      - $HOME/docker/setup/authelia:/config
+      - $HOME/docker/volume/authelia:/data
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.authelia.rule=Host(`auth.{{dynuHost}}`)'
@@ -130,7 +134,7 @@ services:
     image: "louislam/uptime-kuma:1"
     container_name: kuma
     volumes:
-      - $HOME/docker-volume/uptime-kuma:/app/data
+      - $HOME/docker/volume/uptime-kuma:/app/data
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.uptime-kuma.rule=Host(`kuma.{{dynuHost}}`)"
@@ -138,6 +142,24 @@ services:
       - "traefik.http.routers.uptime-kuma.tls=true"
       - "traefik.http.routers.uptime-kuma.tls.certresolver=production"
       - "traefik.http.services.uptime-kuma.loadBalancer.server.port=3001"
+
+  # homebridgepooler:
+  #   image: pedrofeitosa/homebridgepooler:0.0.10
+  #   container_name: homebridgepooler
+  #   environment:
+  #     - HOMEBRIDGE_HOST=
+  #     - HOMEBRIDGE_AUTH_USER=
+  #     - HOMEBRIDGE_AUTH_PASSWORD=
+  #     - HOMEBRIDGE_TEMPERATURE_ACESSORY_ID=
+  #     - MQTT_HOST=
+  #     - MQTT_TOPIC=
+  #     - POOL_INTERVAL=30s
+  # benthos:
+  #   image: jeffail/benthos
+  #   volumes:
+  #   - "./configs/webhook.yaml:/benthos.yaml"
+  #   ports:
+  #   - "4195:4195"
 
  
 #https://raw.githubusercontent.com/EddieDSuza/techwitheddie/main/UltimateHomekitHub

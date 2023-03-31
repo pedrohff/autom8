@@ -30,8 +30,16 @@ access_control:
     #   policy: bypass
     # - domain: traefik.example.com
     #   policy: one_factor
+    # - domain: "*"
+    #   networks:
+    #     - "192.168.15.0/23"
+    #   policy: bypass
     - domain: chronograf.{{dynuHost}}
       policy: two_factor
+    - domain: portainer.{{dynuHost}}
+      resources:
+        - "^/api/stacks/webhooks/"
+      policy: bypass
     - domain: portainer.{{dynuHost}}
       policy: two_factor
     - domain: homebridge.{{dynuHost}}
@@ -69,12 +77,12 @@ regulation:
 storage:
   encryption_key: {{authelia.storage.encryptionKey}}
   local:
-    path: /config/db.sqlite3
+    path: /data/db.sqlite3
 
 notifier:
   disable_startup_check: true
   filesystem:
-    filename: /config/notification.txt
+    filename: /data/notification.txt
 #   smtp:
 #     username: test
 #     # This secret can also be set using the env variables AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE
