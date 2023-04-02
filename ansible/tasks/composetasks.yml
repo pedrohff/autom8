@@ -48,6 +48,7 @@
     group: glados
   loop:
     - /home/glados/docker/volume/authelia
+    - /home/glados/docker/volume/authelia/logs
     - /home/glados/docker/volume/influxdb
     - /home/glados/docker/volume/mosquitto
     - /home/glados/docker/volume/portainer
@@ -167,5 +168,5 @@
   become_user: glados
   community.docker.docker_compose:
     project_src: /home/glados/docker/compose/glados
-    recreate: "always"
+    # recreate: "always"
   register: composeout
