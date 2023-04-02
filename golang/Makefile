@@ -1,5 +1,5 @@
 buildpushhomebridgepooler:
-	go run docker/main.go
+	go run docker/main.go homebridgepooler
 	docker build . -t pedrofeitosa/homebridgepooler:$(VERSION) -f docker/homebridgepooler.Dockerfile
 	docker push pedrofeitosa/homebridgepooler:$(VERSION)
 	rm docker/homebridgepooler.Dockerfile

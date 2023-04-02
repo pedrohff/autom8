@@ -11,10 +11,15 @@ import (
 type Input struct {
 	SubmoduleModsList string
 	SubmoduleList     string
+	AppName           string
 }
 
 func main() {
-	file, err := os.ReadFile("docker/homebridgepoolertemplate.Dockerfile")
+	if len(os.Args) < 2 {
+		panic("appname is invalid")
+	}
+	appName := os.Args[1]
+	file, err := os.ReadFile("docker/Dockerfile.dockertemplate")
 	if err != nil {
 		panic(err)
 		return
@@ -56,6 +61,7 @@ func main() {
 	err = parsedTemplate.Execute(bufferOutput, Input{
 		SubmoduleModsList: modListBuffer.String(),
 		SubmoduleList:     submodulesListBuffer.String(),
+		AppName:           appName,
 	})
 	if err != nil {
 		panic(err)
