@@ -7,4 +7,5 @@ use (
 	pkg/homebridge
 	pkg/log
 	gladoscd
+	securityalerts
 )
