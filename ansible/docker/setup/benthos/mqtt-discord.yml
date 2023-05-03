@@ -4,7 +4,7 @@ input:
     urls:
       - 192.168.15.18:1883
     topics:
-      - /home/bedroom/sensors/temperature
+      - /home/servers/glados/notifications
     client_id: "glados-benthos"
 # pipeline:
 output:

@@ -1,8 +1,12 @@
 run:
 	ansible-playbook run.yml -i hosts --vault-password-file ~/.ssh/vault
 
-composef:
+runcompose:
 	ansible-playbook runcompose.yml -i hosts --vault-password-file ~/.ssh/vault
+
+runcomposenodir:
+	ansible-playbook runcompose.yml -i hosts --vault-password-file ~/.ssh/vault --skip-tags dirsetup
+
 	
 runpass:
 	ssh-copy-id -i /home/totoro/.ssh/glados glados@192.168.15.18

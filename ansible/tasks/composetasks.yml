@@ -14,32 +14,61 @@
   changed_when:
     - dockercomposecheck.rc == 127 or dockercomposecheck.rc == 0
 
-- name: setup directories
+- name: structure docker directory parsing templates locally
   tags:
     - compose
-  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0 and item.state == 'directory'
-  file:
-    state: directory
-    owner: glados
-    group: glados
-    dest: '/home/glados/docker/{{ item.path }}'
-  with_filetree: docker
+    - dirsetup
+  delegate_to: localhost
+  become: false
+  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
+  block:
+    - name: create temporary directory
+      tempfile:
+        state: directory
+      register: tempdir
+    - debug:
+        var: tempdir.path
+    - name: setup internal dirs
+      when: item.state == 'directory'
+      file:
+        state: directory
+        dest: '{{ tempdir.path }}/{{ item.path }}'
+      with_filetree: docker
+    - name: template each file in docker directory
+      when: item.state == 'file'
+      ansible.builtin.template:
+        src: '{{ item.src }}'
+        dest: "{{ tempdir.path }}/{{ item.path }}"
+        force: true
+      with_filetree: docker
 
-- name: copy docker compose and setup files
+- name: copy to test folder
   tags:
     - compose
-  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0 and item.state == 'file'
-  ansible.builtin.template:
-    src: '{{ item.src }}'
-    dest: /home/glados/docker/{{ item.path }}
+    - dirsetup
+  ansible.builtin.copy:
+    src: "{{ tempdir.path }}/"
+    dest: /home/glados/docker
+    follow: yes
     force: true
     owner: glados
     group: glados
-  with_filetree: docker
+
+- name: Remove temporary directory
+  tags:
+    - compose
+    - dirsetup
+  delegate_to: localhost
+  become: false
+  file:
+    state: absent
+    path: "{{ tempdir.path }}"
+
 
 - name: setup directories for volumes
   tags:
     - compose
+    - dirsetup
   when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
   file:
     path: "{{item}}"
@@ -54,119 +83,27 @@
     - /home/glados/docker/volume/portainer
     - /home/glados/docker/volume/traefik
     - /home/glados/docker/volume/uptime-kuma
+    - /home/glados/docker/volume/securityalerts
 
-
-
-
-# - name: copy docker setup files to docker volume 
+# - name: init glados compose stack
 #   tags:
 #     - compose
 #   when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
-#   copy:
-#     src: compose/volume/
-#     dest: /home/glados/docker-volume/
-#     force: true
-#     owner: glados
-#     group: glados
+#   become: true
+#   become_user: glados
+#   community.docker.docker_compose:
+#     project_src: /home/glados/docker/compose/glados
+#     remove_orphans: true
+#     # recreate: "always"
+#   register: composeout
 
-# - name: setup directories
+
+# - name: init iot compose stack
 #   tags:
 #     - compose
 #   when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
-#   file:
-#     path: /home/glados/dockercompose/glados/
-#     state: directory
-#     owner: glados
-#     group: glados
-
-# - name: copy docker compose file for glados stack
-#   tags:
-#     - compose
-#   when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
-#   ansible.builtin.template:
-#     src: compose/glados-stack.yml
-#     dest: /home/glados/dockercompose/glados/docker-compose.yml
-#     force: true
-#     owner: glados
-#     group: glados
-
-# - name: setup authelia directory
-#   tags:
-#     - compose
-#     - authelia
-#   when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
-#   file:
-#     path: /home/glados/docker-volume/authelia
-#     state: directory
-#     owner: glados
-#     group: glados
-
-# - name: copy authelia core config file
-#   tags:
-#     - compose
-#     - authelia
-#   when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
-#   ansible.builtin.template:
-#     src: other/authelia/configuration.yml
-#     dest: /home/glados/docker-volume/authelia/configuration.yml
-#     force: true
-#     owner: glados
-#     group: glados
-
-# - name: copy authelia users database config file
-#   tags:
-#     - compose
-#     - authelia
-#   when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
-#   ansible.builtin.template:
-#     src: other/authelia/users_database.yml
-#     dest: /home/glados/docker-volume/authelia/users_database.yml
-#     force: true
-#     owner: glados
-#     group: glados
-
-# - name: setup traefik directory
-#   tags:
-#     - compose
-#     - traefik
-#   when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
-#   file:
-#     path: /home/glados/docker-volume/traefik
-#     state: directory
-#     owner: glados
-#     group: glados
-
-# - name: copy traefik main config file
-#   tags:
-#     - compose
-#     - traefik
-#   when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
-#   ansible.builtin.template:
-#     src: other/traefik/traefik.yml
-#     dest: /home/glados/docker-volume/traefik/traefik.yml
-#     force: true
-#     owner: glados
-#     group: glados
-
-# - name: copy traefik external config file
-#   tags:
-#     - compose
-#     - traefik
-#   when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
-#   ansible.builtin.template:
-#     src: other/traefik/external.yml
-#     dest: /home/glados/docker-volume/traefik/external.yml
-#     force: true
-#     owner: glados
-#     group: glados
-
-- name: init glados compose stack
-  tags:
-    - compose
-  when: dockerdrunning.stdout.find('running') != -1 and dockercomposecheck.rc == 0
-  become: true
-  become_user: glados
-  community.docker.docker_compose:
-    project_src: /home/glados/docker/compose/glados
-    # recreate: "always"
-  register: composeout
+#   become: true
+#   become_user: glados
+#   community.docker.docker_compose:
+#     project_src: /home/glados/docker/compose/iot
+#     remove_orphans: true

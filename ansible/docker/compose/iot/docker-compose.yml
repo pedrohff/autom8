@@ -13,9 +13,30 @@ services:
   #     - MQTT_TOPIC=
   #     - POOL_INTERVAL=30s
 
-  benthos:
-    image: jeffail/benthos
+  # mqttinflux:
+  #   container_name: benthos-mqttinflux
+  #   restart: always
+  #   image: pedrofeitosa/benthos:4.3.10
+  #   volumes:
+  #     - "$HOME/docker/setup/benthos/mqtt-influx.yml:/benthos.yaml"
+  #   ports:
+  #     - "4195:4195"
+  mqttdiscord:
+    container_name: benthos-mqttdiscord
+    restart: always
+    image: pedrofeitosa/benthos:4.3.10
     volumes:
-    - "./configs/webhook.yaml:/benthos.yaml"
+      - "$HOME/docker/setup/benthos/mqtt-discord.yml:/benthos.yaml"
     ports:
-    - "4195:4195"
+      - "4195:4195"
+
+  securityalerts:
+    container_name: securityalerts
+    image: pedrofeitosa/securityalerts:8
+    restart: always
+    volumes:
+      - $HOME/docker/volume/authelia/logs:/data/authelialogs
+      - $HOME/docker/volume/securityalerts/apptailpointer:/app/.apptailpointer
+    environment:
+      - TAIL_DIRECTORY=/data/authelialogs
+      - MQTT_HOST=192.168.15.18:1883

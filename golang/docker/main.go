@@ -39,7 +39,8 @@ func main() {
 		panic(err)
 		return
 	}
-	goworkFileLines := strings.Split(string(goworkFile), "\n")
+	// TODO use bufio
+	goworkFileLines := strings.Split(string(goworkFile), "\r\n")
 	scan := false
 	goworkSubModules := make([]string, 0, 0)
 	for _, k := range goworkFileLines {
@@ -51,6 +52,8 @@ func main() {
 		}
 	}
 
+	fmt.Println(goworkFileLines)
+	fmt.Println(goworkSubModules)
 	for _, subModule := range goworkSubModules {
 		modListBuffer.WriteString(fmt.Sprintf("COPY %s/go.mod /app/%s/go.mod\n", subModule, subModule))
 		modListBuffer.WriteString(fmt.Sprintf("COPY %s/go.sum /app/%s/go.sum\n", subModule, subModule))
@@ -67,7 +70,7 @@ func main() {
 		panic(err)
 		return
 	}
-	err = os.WriteFile("docker/homebridgepooler.Dockerfile", bufferOutput.Bytes(), 0644)
+	err = os.WriteFile(fmt.Sprintf("docker/%s.Dockerfile", appName), bufferOutput.Bytes(), 0644)
 	if err != nil {
 		panic(err)
 		return
